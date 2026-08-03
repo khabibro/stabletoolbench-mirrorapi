@@ -72,6 +72,12 @@ POST http://127.0.0.1:8080/virtual
 
 The README says `python main_mirrorapi.py`, but the actual file is under `server/`. This repo runs it from inside the official `server` directory so its relative config lookup works.
 
+Paper vs repository scope:
+
+- The ACL 2024 StableToolBench paper describes the original virtual API server as a response cache plus real API fallback plus GPT-based API simulator.
+- The current official repository later adds MirrorAPI as an open-source simulator path.
+- This repository targets only that later MirrorAPI smoke-test path. It does not reproduce the original paper cache path, real API fallback, GPT-based simulator, SoPR, or SoWR.
+
 ## Test Request
 
 `test_request.json` uses the official README test request:
@@ -92,11 +98,14 @@ Selected request:
 - Category: `Artificial_Intelligence_Machine_Learning`
 - Tool: `TTSKraken`
 - API endpoint: `List Languages`
-- Required parameters: none in the request example
+- Endpoint description: `Get a list of currently supported languages. We are constantly adding more every few weeks.`
+- Required parameters: none
+- Optional parameters: none
+- Official tool-definition path after extracting ToolEnv2404: `toolenv2404_filtered/Artificial_Intelligence_Machine_Learning/ttskraken.json`
 - Request URL: `POST /virtual`
 - Expected outer response format: `{"error": "...", "response": ...}`
 
-The full tool metadata is not committed here. On the GPU server, download or locate the official StableToolBench/ToolBench tools folder and confirm it contains the `TTSKraken` definition.
+The full tool metadata is not committed here. The official `stabletoolbench/ToolEnv2404` archive is about 11.7 MB and contains the verified `TTSKraken` definition. On the GPU server, download or locate that tools folder and set `TOOLS_PATH` to the extracted `toolenv2404_filtered` directory.
 
 ## Mac Preparation
 
