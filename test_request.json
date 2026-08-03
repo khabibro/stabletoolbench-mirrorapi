@@ -1,8 +1,0 @@
-{
-  "category": "Artificial_Intelligence_Machine_Learning",
-  "tool_name": "TTSKraken",
-  "api_name": "List Languages",
-  "tool_input": "{}",
-  "strip": "truncate",
-  "toolbench_key": ""
-}

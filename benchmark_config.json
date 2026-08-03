@@ -1,29 +1,57 @@
 {
+  "model_path": "/home/khabibillo/models/stabletoolbench-MirrorAPI",
+  "model_revision": "f181ec673e2346898a0d6453164604bb8372c4fd",
+  "dataset_path": "/home/khabibillo/mirrorapi-sft-bleu/benchmark/MirrorAPI-Bench",
+  "dataset_revision": "adceeb3a567d1f1714fa65c0772ca95a2b0f7cf7",
+  "llamafactory_path": "/home/khabibillo/mirrorapi-sft-bleu/LLaMA-Factory",
+  "llamafactory_version": "v0.9.3",
+  "llamafactory_commit": "ca75f1edf3cb50343ed1c98605141c3e22075b5f",
+  "template": "qwen",
   "mode": "sft",
-  "temperature": 0.0,
   "do_sample": false,
+  "temperature": 0.0,
   "top_p": 1.0,
   "top_k": 0,
   "max_new_tokens": 2660,
   "cutoff_len": 2560,
-  "template": "qwen",
+  "seed": 42,
   "precision": "bf16",
   "batch_size": 1,
-  "seed": 42,
-  "model_path": "/home/khabibillo/models/stabletoolbench-MirrorAPI",
-  "model_id": "stabletoolbench/MirrorAPI",
-  "model_revision": "f181ec673e2346898a0d6453164604bb8372c4fd",
-  "dataset_id": "stabletoolbench/MirrorAPI-Bench",
-  "dataset_revision": "adceeb3a567d1f1714fa65c0772ca95a2b0f7cf7",
-  "llamafactory_tag": "v0.9.3",
-  "llamafactory_revision": "ca75f1edf3cb50343ed1c98605141c3e22075b5f",
-  "evaluation_script": "benchmark/MirrorAPI-Bench/scripts/compute_metrics.py",
-  "conversion_script": "benchmark/MirrorAPI-Bench/scripts/convert_format.py",
-  "official_sft_files": [
-    "test_sft/ood.json",
-    "test_sft/ood_failure.json",
-    "test_sft/id_high.json",
-    "test_sft/id_medium.json",
-    "test_sft/id_low.json"
-  ]
+  "splits": {
+    "id_high": {
+      "dataset_name": "mirrorapi_sft_id_high",
+      "test_file": "test_sft/id_high.json",
+      "reference_file": "reference/id_high.jsonl",
+      "official_bleu4": 74.2,
+      "samples": 100
+    },
+    "id_medium": {
+      "dataset_name": "mirrorapi_sft_id_medium",
+      "test_file": "test_sft/id_medium.json",
+      "reference_file": "reference/id_medium.jsonl",
+      "official_bleu4": 80.0,
+      "samples": 100
+    },
+    "id_low": {
+      "dataset_name": "mirrorapi_sft_id_low",
+      "test_file": "test_sft/id_low.json",
+      "reference_file": "reference/id_low.jsonl",
+      "official_bleu4": 86.3,
+      "samples": 100
+    },
+    "ood_failed": {
+      "dataset_name": "mirrorapi_sft_ood_failed",
+      "test_file": "test_sft/ood_failure.json",
+      "reference_file": "reference/ood_failure.jsonl",
+      "official_bleu4": 89.9,
+      "samples": 100
+    },
+    "ood_successful": {
+      "dataset_name": "mirrorapi_sft_ood_successful",
+      "test_file": "test_sft/ood.json",
+      "reference_file": "reference/ood.jsonl",
+      "official_bleu4": 35.6,
+      "samples": 200
+    }
+  }
 }
