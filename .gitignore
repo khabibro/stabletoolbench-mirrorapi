@@ -1,6 +1,7 @@
 .env
 .venv/
 .venv-server/
+.venv-llamafactory/
 venv/
 __pycache__/
 *.pyc
@@ -8,7 +9,12 @@ __pycache__/
 *.log
 logs/
 test_response.json
+predictions*.jsonl
+converted*.jsonl
+metrics*.txt
 stabletoolbench/
+LLaMA-Factory/
+benchmark/
 models/
 checkpoints/
 cache/
