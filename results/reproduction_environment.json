@@ -1,0 +1,70 @@
+{
+  "paper_sources": {
+    "mirrorapi_paper": "https://arxiv.org/abs/2503.20527",
+    "stabletoolbench_paper": "https://aclanthology.org/2024.acl-long.830/"
+  },
+  "official_results_table": "MirrorAPI paper Table 3; SFT BLEU-4 OOD successful 35.6, OOD failed 89.9, ID high 74.2, ID medium 80.0, ID low 86.3",
+  "stabletoolbench_commit": "aa4ed9f4737ad98bd706663f01d63623c3427812",
+  "mirrorapi_model_id": "stabletoolbench/MirrorAPI",
+  "mirrorapi_model_revision": "f181ec673e2346898a0d6453164604bb8372c4fd",
+  "mirrorapi_bench_id": "stabletoolbench/MirrorAPI-Bench",
+  "mirrorapi_bench_revision": "adceeb3a567d1f1714fa65c0772ca95a2b0f7cf7",
+  "llamafactory_tag": "v0.9.3",
+  "llamafactory_revision": "ca75f1edf3cb50343ed1c98605141c3e22075b5f",
+  "python": "Python 3.10.12",
+  "torch": "2.11.0+cu130",
+  "transformers": "4.52.4",
+  "vllm": "0.26.0",
+  "cuda_driver": "580.95.05",
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition, 97887 MiB",
+  "prompt_template": "qwen",
+  "generation_settings": {
+    "mode": "sft",
+    "temperature": 0.0,
+    "do_sample": false,
+    "top_p": 1.0,
+    "top_k": 0,
+    "max_new_tokens": 2660,
+    "cutoff_len": 2560,
+    "template": "qwen",
+    "precision": "bf16",
+    "batch_size": 1,
+    "seed": 42,
+    "model_path": "/home/khabibillo/models/stabletoolbench-MirrorAPI",
+    "model_id": "stabletoolbench/MirrorAPI",
+    "model_revision": "f181ec673e2346898a0d6453164604bb8372c4fd",
+    "dataset_id": "stabletoolbench/MirrorAPI-Bench",
+    "dataset_revision": "adceeb3a567d1f1714fa65c0772ca95a2b0f7cf7",
+    "llamafactory_tag": "v0.9.3",
+    "llamafactory_revision": "ca75f1edf3cb50343ed1c98605141c3e22075b5f",
+    "evaluation_script": "benchmark/MirrorAPI-Bench/scripts/compute_metrics.py",
+    "conversion_script": "benchmark/MirrorAPI-Bench/scripts/convert_format.py",
+    "official_sft_files": [
+      "test_sft/ood.json",
+      "test_sft/ood_failure.json",
+      "test_sft/id_high.json",
+      "test_sft/id_medium.json",
+      "test_sft/id_low.json"
+    ]
+  },
+  "test_files": [
+    "test_sft/ood.json first 5",
+    "test_sft/ood.json first 20"
+  ],
+  "official_scripts": [
+    "benchmark/MirrorAPI-Bench/scripts/convert_format.py",
+    "benchmark/MirrorAPI-Bench/scripts/compute_metrics.py"
+  ],
+  "hashes": {
+    "benchmark_config.json": "933fe7662a58a7cb26b15637b4b249074cb5df84887d8465dfad41dbd526daec",
+    "benchmark/MirrorAPI-Bench/test_sft/ood.json": "f686b772ad362fb2b49823e8035ff69d8fc57a180034c3f2f7492ad5555539c3",
+    "benchmark/MirrorAPI-Bench/reference/ood.jsonl": "5aad7986a9bca777b0aa6ded0c75fa8e7fd89d40334f89c60f106419793266bb",
+    "benchmark/MirrorAPI-Bench/scripts/convert_format.py": "1c4d27febfa1ab3e420f9a1b3f72e29afd75a491e70f39dca5d5df5619120789",
+    "benchmark/MirrorAPI-Bench/scripts/compute_metrics.py": "90591f4e2a5e081e85dc889241f0137f0b7cd4df15673cbc552d8e7eb314a1dc",
+    "results/preflight_5_predictions.jsonl": "8ead40868363fcbe7a451fbc5fa579559093eb7b78cf77aaa0c8fff704bce42e",
+    "results/preflight_5_converted.jsonl": "f2c0a86b72b19433fa81e70a9b478c0039751aa2be4be59d71a09c1c7b578b17",
+    "results/predictions_20.jsonl": "31dfbfaf4890e57cac58861801f568f30eb38481169481b7cbbc5426ae97f0cd",
+    "results/converted_20.jsonl": "2471498b388156f7ae87a9ddeb94c3d9d92541b3554bd2713de9c8d5ededea7e",
+    "results/metrics_20.txt": "1cf7244fab6939d4286f9f4160db257e8aaa7c1f8594093d3eb1a106f86f63f9"
+  }
+}

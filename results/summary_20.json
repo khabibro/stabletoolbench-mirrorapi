@@ -1,0 +1,13 @@
+{
+  "expected_samples": 20,
+  "prediction_count": 20,
+  "converted_count": 20,
+  "reference_count": 20,
+  "missing_outputs": 0,
+  "empty_outputs": 0,
+  "strict_valid_json_outer": 14,
+  "json_like_invalid_outer": 6,
+  "duplicate_prompts": 0,
+  "run_log": "results/run_20.log",
+  "official_metrics": "results/metrics_20.txt"
+}
