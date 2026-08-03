@@ -1,0 +1,8 @@
+ID High runtime record
+Command: CUDA_VISIBLE_DEVICES=0 torchrun --master_port 29521 --nproc_per_node 1 --nnodes 1 src/train.py --do_predict --predict_with_generate --model_name_or_path /home/khabibillo/models/stabletoolbench-MirrorAPI --eval_dataset mirrorapi_sft_id_high --stage sft --template qwen --preprocessing_num_workers 16 --finetuning_type full --output_dir ../benchmark/runs/sft_id_high/output --max_new_tokens 2660 --bf16 --report_to none --flash_attn auto --cutoff_len 2560 --seed 42 --per_device_eval_batch_size 1 --overwrite_cache --do_sample false --temperature 0.0 --top_p 1.0 --top_k 0
+Training performed: NO
+Inference only: YES
+TOTAL_RUNTIME_SECONDS=841
+predict_runtime=822.9382
+predict_samples_per_second=0.122
+Note: full stdout was monitored interactively; this file records command and final runtime/metric facts.

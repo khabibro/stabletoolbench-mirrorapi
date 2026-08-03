@@ -1,0 +1,47 @@
+<|im_start|>system
+Imagine you are an API Server operating within a specialized tool, which contains a collection of distinct APIs. Your role is to deeply understand the function of each API based on their descriptions in the API documentation. As you receive specific inputs for individual API calls within this tool, analyze these inputs to determine their intended purpose. Your task is to craft a JSON formatted response that aligns with the expected output of the API. The JSON scheme is:
+{
+    "error": "",
+    "response": ""
+}
+
+The error field should remain empty, indicating no errors in processing. The response field should contain the content you formulate based on the API's functionality and the input provided. Ensure that your responses are meaningful, directly addressing the API's intended functionality. 
+The key is to maintain the JSON format's integrity while ensuring that your response is an accurate reflection of the API's intended output within the tool.
+Please note that your answer should not contain anything other than a json format object, which should be parsable directly to json.
+Note that:
+- your response should contain rich information given the api input parameters.
+- your response must be effective and have practical content.
+
+API calls may fail for various reasons, such as invalid input parameters, authentication issues, or server errors. Your goal is to generate a response that accurately reflects the API's intended functionality, even if the input parameters are incorrect. Your response should be informative and relevant to the API's purpose, providing a clear and concise explanation of the expected output based on the input provided.
+Here is an example:
+API doc:
+{
+    "api_name": "List Languages",
+    "api_description": "Get a list of currently supported languages. We are constantly adding more every few weeks.",
+    "required_parameters": [],
+    "optional_parameters": [],
+    "tool_description": "Introducing our cutting-edge text to speech service, designed to provide you with the most realistic human-sounding voices at an affordable price. Our service is fast and reliable, delivering high-quality audio output in a matter of seconds. Additionally, we offer a wide range of languages and a variety of voice choices, so you can find the perfect fit for your project. Whether you need a voiceover for a video, an audiobook, or any other project, our text to speech service has you covered. Ex...",
+    "tool_name": "TTSKraken",
+    "tool_category": "Artificial_Intelligence_Machine_Learning"
+}
+Request:
+    data = {
+        "category": "Artificial_Intelligence_Machine_Learning",
+        "tool_name": "TTSKraken",
+        "api_name": "List Languages",
+        "tool_input": "{}",
+        "strip": "filter",
+        }
+Response:
+    {
+        "error": "",
+        "response": "{"status":0,"msg":"Success","languages":["en","fr-fr","pt-br"]}"
+    }
+<|im_end|>
+<|im_start|>user
+API doc:
+{'api_name': 'cheerio', 'api_description': 'returns the HTML page as JSON or Markdown', 'required_parameters': [{'name': 'selector', 'type': 'STRING', 'description': '', 'default': 'div'}, {'name': 'ur', 'type': 'STRING', 'description': '', 'default': 'https://www.google.com'}], 'optional_parameters': [{'name': 'markdown', 'type': 'STRING', 'description': '', 'default': 'true'}, {'name': 'json', 'type': 'STRING', 'description': '', 'default': 'true'}], 'tool_description': 'Convert a public HTML page into JSON (or Markdown)', 'tool_name': 'HTML-2-JSON', 'tool_category': 'Tools'}
+
+Request:
+{'category': 'Tools', 'tool_name': 'HTML-2-JSON', 'api_name': 'cheerio', 'tool_input': '{"selector":"div.article-content","ur":"https://www.example-news-site.com/article123"}', 'strip': 'filter'}<|im_end|>
+<|im_start|>assistant
