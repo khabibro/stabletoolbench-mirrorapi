@@ -1,11 +1,14 @@
 # Rendered Prompt Verification
 
-- Source: first existing 20-sample OOD SFT prediction prompt
+This file records the prompt audit for the MirrorAPI SFT benchmark reproduction.
+
 - Template: qwen
 - Contains Qwen system token: True
 - Contains API documentation: True
-- Contains request: True
+- Contains request content: True
 - Contains assistant prefix: True
 - Prompt length characters: 3767
 - Prompt token count: 817
-- Verdict: no prompt modifications detected since the 20-sample run; this is the LLaMA-Factory-rendered prompt saved in `results/predictions_20.jsonl`.
+- Verdict: the benchmark used the LLaMA-Factory-rendered Qwen SFT prompt with no manual prompt rewrites.
+
+The raw prompt text file is not retained in the final repository because the final paper reproduction is represented by the full-split predictions, converted predictions, metrics, summaries, and this verification record.
