@@ -1,0 +1,10 @@
+
+0it [00:00, ?it/s]Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.357 seconds.
+Prefix dict has been built successfully.
+
+1it [00:00,  2.76it/s]
+92it [00:00, 259.16it/s]
+100it [00:00, 211.26it/s]
+{'rouge-1': 87.58, 'rouge-2': 86.95, 'rouge-l': 88.21, 'bleu-4': 88.51}
