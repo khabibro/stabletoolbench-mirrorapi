@@ -8,6 +8,7 @@ set -euo pipefail
 VLLM_URL="${VLLM_URL:-http://127.0.0.1:12345/v1}"
 VLLM_API_KEY="${VLLM_API_KEY:-EMPTY}"
 MIRRORAPI_URL="${MIRRORAPI_URL:-http://127.0.0.1:8080}"
+MIRRORAPI_TEMPERATURE="${MIRRORAPI_TEMPERATURE:-0.1}"
 MIRRORAPI_PORT="${MIRRORAPI_URL##*:}"
 MIRRORAPI_PORT="${MIRRORAPI_PORT%%/*}"
 
@@ -33,7 +34,7 @@ curl -fsS -H "Authorization: Bearer $VLLM_API_KEY" "$VLLM_URL/models" >/dev/null
 cat > "$CONFIG_FILE" <<YAML
 api_key: "$VLLM_API_KEY"
 api_base: "$VLLM_URL"
-temperature: 0
+temperature: $MIRRORAPI_TEMPERATURE
 tools_folder: "$TOOLS_PATH"
 port: $MIRRORAPI_PORT
 model: "$MIRRORAPI_MODEL_NAME"
