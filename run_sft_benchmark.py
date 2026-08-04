@@ -8,7 +8,6 @@ import sys
 import time
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent
 
 
@@ -34,7 +33,11 @@ def load_sft_split(config: dict, split: str) -> tuple[dict, list, list]:
     if not reference_file.exists():
         raise FileNotFoundError(f"Official reference file not found: {reference_file}")
     samples = json.loads(test_file.read_text())
-    references = [json.loads(line) for line in reference_file.read_text().splitlines() if line.strip()]
+    references = [
+        json.loads(line)
+        for line in reference_file.read_text().splitlines()
+        if line.strip()
+    ]
     return split_config, samples, references
 
 
@@ -47,13 +50,19 @@ def verify_checkpoint_and_tools(config: dict) -> tuple[Path, Path, Path]:
     if not dataset_path.exists():
         raise FileNotFoundError(f"MirrorAPI-Bench checkout not found: {dataset_path}")
     if not llamafactory_path.exists():
-        raise FileNotFoundError(f"LLaMA-Factory checkout not found: {llamafactory_path}")
+        raise FileNotFoundError(
+            f"LLaMA-Factory checkout not found: {llamafactory_path}"
+        )
     if not (llamafactory_path / "src/train.py").exists():
-        raise FileNotFoundError(f"LLaMA-Factory train.py not found: {llamafactory_path / 'src/train.py'}")
+        raise FileNotFoundError(
+            f"LLaMA-Factory train.py not found: {llamafactory_path / 'src/train.py'}"
+        )
     return model_path, dataset_path, llamafactory_path
 
 
-def register_llamafactory_dataset(config: dict, split_config: dict, llamafactory_path: Path) -> None:
+def register_llamafactory_dataset(
+    config: dict, split_config: dict, llamafactory_path: Path
+) -> None:
     dataset_info = llamafactory_path / "data/dataset_info.json"
     data = json.loads(dataset_info.read_text())
     data[split_config["dataset_name"]] = {
@@ -63,43 +72,74 @@ def register_llamafactory_dataset(config: dict, split_config: dict, llamafactory
     dataset_info.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
-def build_llamafactory_command(config: dict, split: str, split_config: dict, model_path: Path) -> list[str]:
+def build_llamafactory_command(
+    config: dict, split: str, split_config: dict, model_path: Path
+) -> list[str]:
     output_dir = f"../benchmark/runs/sft_{split}/output"
     command = [
         "torchrun",
-        "--master_port", "29521",
-        "--nproc_per_node", "1",
-        "--nnodes", "1",
+        "--master_port",
+        "29521",
+        "--nproc_per_node",
+        "1",
+        "--nnodes",
+        "1",
         "src/train.py",
         "--do_predict",
         "--predict_with_generate",
-        "--model_name_or_path", str(model_path),
-        "--eval_dataset", split_config["dataset_name"],
-        "--stage", "sft",
-        "--template", config["template"],
-        "--preprocessing_num_workers", "16",
-        "--finetuning_type", "full",
-        "--output_dir", output_dir,
-        "--max_new_tokens", str(config["max_new_tokens"]),
+        "--model_name_or_path",
+        str(model_path),
+        "--eval_dataset",
+        split_config["dataset_name"],
+        "--stage",
+        "sft",
+        "--template",
+        config["template"],
+        "--preprocessing_num_workers",
+        "16",
+        "--finetuning_type",
+        "full",
+        "--output_dir",
+        output_dir,
+        "--max_new_tokens",
+        str(config["max_new_tokens"]),
         "--bf16",
-        "--report_to", "none",
-        "--flash_attn", "auto",
-        "--cutoff_len", str(config["cutoff_len"]),
-        "--seed", str(config["seed"]),
-        "--per_device_eval_batch_size", str(config["batch_size"]),
+        "--report_to",
+        "none",
+        "--flash_attn",
+        "auto",
+        "--cutoff_len",
+        str(config["cutoff_len"]),
+        "--seed",
+        str(config["seed"]),
+        "--per_device_eval_batch_size",
+        str(config["batch_size"]),
         "--overwrite_cache",
-        "--do_sample", str(config["do_sample"]).lower(),
-        "--temperature", str(config["temperature"]),
-        "--top_p", str(config["top_p"]),
-        "--top_k", str(config["top_k"]),
+        "--do_sample",
+        str(config["do_sample"]).lower(),
+        "--temperature",
+        str(config["temperature"]),
+        "--top_p",
+        str(config["top_p"]),
+        "--top_k",
+        str(config["top_k"]),
     ]
     return command
 
 
-def run_logged_command(command: list[str], cwd: Path, log_file: Path | None = None) -> str:
+def run_logged_command(
+    command: list[str], cwd: Path, log_file: Path | None = None
+) -> str:
     print("$ " + " ".join(command), flush=True)
     output_lines = []
-    with subprocess.Popen(command, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1) as proc:
+    with subprocess.Popen(
+        command,
+        cwd=cwd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    ) as proc:
         for line in proc.stdout:
             print(line, end="", flush=True)
             output_lines.append(line)
@@ -112,14 +152,25 @@ def run_logged_command(command: list[str], cwd: Path, log_file: Path | None = No
     return "".join(output_lines)
 
 
-def run_sft_inference(config: dict, split: str, split_config: dict, model_path: Path, llamafactory_path: Path, force: bool) -> float:
+def run_sft_inference(
+    config: dict,
+    split: str,
+    split_config: dict,
+    model_path: Path,
+    llamafactory_path: Path,
+    force: bool,
+) -> float:
     output_dir = REPO_ROOT / f"benchmark/runs/sft_{split}/output"
     result_dir = REPO_ROOT / f"results/{split}"
     runtime_log = result_dir / "runtime.log"
     if output_dir.exists() and not force:
-        raise FileExistsError(f"Refusing to overwrite existing output directory: {output_dir}")
+        raise FileExistsError(
+            f"Refusing to overwrite existing output directory: {output_dir}"
+        )
     if result_dir.exists() and any(result_dir.iterdir()) and not force:
-        raise FileExistsError(f"Refusing to overwrite existing result directory: {result_dir}")
+        raise FileExistsError(
+            f"Refusing to overwrite existing result directory: {result_dir}"
+        )
     if output_dir.exists():
         shutil.rmtree(output_dir)
     if result_dir.exists() and force:
@@ -135,7 +186,9 @@ def run_sft_inference(config: dict, split: str, split_config: dict, model_path: 
         handle.write(f"TOTAL_RUNTIME_SECONDS={elapsed}\n")
         handle.write("Training performed: NO\n")
         handle.write("Inference only: YES\n")
-    shutil.copyfile(output_dir / "generated_predictions.jsonl", result_dir / "predictions.jsonl")
+    shutil.copyfile(
+        output_dir / "generated_predictions.jsonl", result_dir / "predictions.jsonl"
+    )
     return elapsed
 
 
@@ -145,8 +198,10 @@ def convert_official_predictions(config: dict, split: str) -> None:
     command = [
         sys.executable,
         str(dataset_path / "scripts/convert_format.py"),
-        "--input_file", str(result_dir / "predictions.jsonl"),
-        "--output_file", str(result_dir / "converted_predictions.jsonl"),
+        "--input_file",
+        str(result_dir / "predictions.jsonl"),
+        "--output_file",
+        str(result_dir / "converted_predictions.jsonl"),
     ]
     run_logged_command(command, cwd=REPO_ROOT)
 
@@ -157,8 +212,10 @@ def run_official_metrics(config: dict, split: str, split_config: dict) -> None:
     command = [
         sys.executable,
         str(dataset_path / "scripts/compute_metrics.py"),
-        "--predictions", str(result_dir / "converted_predictions.jsonl"),
-        "--references", str(dataset_path / split_config["reference_file"]),
+        "--predictions",
+        str(result_dir / "converted_predictions.jsonl"),
+        "--references",
+        str(dataset_path / split_config["reference_file"]),
     ]
     output = run_logged_command(command, cwd=Path("/tmp"))
     (result_dir / "metrics.txt").write_text(output)
@@ -169,16 +226,34 @@ def parse_metric(metrics_text: str, key: str) -> float | None:
     return float(match.group(1)) if match else None
 
 
-def validate_prediction_count(split: str, expected: int, references: list) -> tuple[list, list]:
+def validate_prediction_count(
+    split: str, expected: int, references: list
+) -> tuple[list, list]:
     result_dir = REPO_ROOT / f"results/{split}"
-    predictions = [json.loads(line) for line in (result_dir / "predictions.jsonl").read_text().splitlines() if line.strip()]
-    converted = [json.loads(line) for line in (result_dir / "converted_predictions.jsonl").read_text().splitlines() if line.strip()]
+    predictions = [
+        json.loads(line)
+        for line in (result_dir / "predictions.jsonl").read_text().splitlines()
+        if line.strip()
+    ]
+    converted = [
+        json.loads(line)
+        for line in (result_dir / "converted_predictions.jsonl")
+        .read_text()
+        .splitlines()
+        if line.strip()
+    ]
     if len(predictions) != expected:
-        raise ValueError(f"Prediction count mismatch: expected {expected}, got {len(predictions)}")
+        raise ValueError(
+            f"Prediction count mismatch: expected {expected}, got {len(predictions)}"
+        )
     if len(converted) != expected:
-        raise ValueError(f"Converted count mismatch: expected {expected}, got {len(converted)}")
+        raise ValueError(
+            f"Converted count mismatch: expected {expected}, got {len(converted)}"
+        )
     if len(references) != expected:
-        raise ValueError(f"Reference count mismatch: expected {expected}, got {len(references)}")
+        raise ValueError(
+            f"Reference count mismatch: expected {expected}, got {len(references)}"
+        )
     prompts = [item.get("prompt") for item in predictions]
     if len(prompts) != len(set(prompts)):
         raise ValueError("Duplicate prompts detected")
@@ -211,11 +286,22 @@ def analyze_json_outputs(predictions: list) -> dict:
     }
 
 
-def save_split_summary(config: dict, split: str, split_config: dict, samples: list, references: list, elapsed: float, predictions: list, converted: list) -> None:
+def save_split_summary(
+    config: dict,
+    split: str,
+    split_config: dict,
+    samples: list,
+    references: list,
+    elapsed: float,
+    predictions: list,
+    converted: list,
+) -> None:
     result_dir = REPO_ROOT / f"results/{split}"
     metrics_text = (result_dir / "metrics.txt").read_text()
     all_results = REPO_ROOT / f"benchmark/runs/sft_{split}/output/all_results.json"
-    llamafactory_metrics = json.loads(all_results.read_text()) if all_results.exists() else {}
+    llamafactory_metrics = (
+        json.loads(all_results.read_text()) if all_results.exists() else {}
+    )
     bleu = parse_metric(metrics_text, "bleu-4")
     official = split_config["official_bleu4"]
     difference = bleu - official if bleu is not None else None
@@ -226,14 +312,17 @@ def save_split_summary(config: dict, split: str, split_config: dict, samples: li
         "paper_official_bleu4": official,
         "reproduced_bleu4": bleu,
         "absolute_difference": difference,
-        "relative_difference_percent": difference / official * 100 if difference is not None else None,
+        "relative_difference_percent": (
+            difference / official * 100 if difference is not None else None
+        ),
         "input_count": len(samples),
         "prediction_count": len(predictions),
         "converted_count": len(converted),
         "reference_count": len(references),
         "duplicate_prompts": 0,
         "missing_outputs": 0,
-        "prediction_failures": json_analysis["empty_outputs"] + json_analysis["traceback_outputs"],
+        "prediction_failures": json_analysis["empty_outputs"]
+        + json_analysis["traceback_outputs"],
         "rouge": {
             "rouge-1": parse_metric(metrics_text, "rouge-1"),
             "rouge-2": parse_metric(metrics_text, "rouge-2"),
@@ -268,24 +357,49 @@ def save_split_summary(config: dict, split: str, split_config: dict, samples: li
         },
         **json_analysis,
     }
-    (result_dir / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n")
+    (result_dir / "summary.json").write_text(
+        json.dumps(summary, indent=2, ensure_ascii=False) + "\n"
+    )
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run one official MirrorAPI-Bench SFT split through LLaMA-Factory do_predict.")
-    parser.add_argument("--split", required=True, choices=["id_high", "id_medium", "id_low", "ood_failed", "ood_successful"])
-    parser.add_argument("--force", action="store_true", help="Overwrite existing result directory and LLaMA-Factory output for this split.")
+    parser = argparse.ArgumentParser(
+        description="Run one official MirrorAPI-Bench SFT split through LLaMA-Factory do_predict."
+    )
+    parser.add_argument(
+        "--split",
+        required=True,
+        choices=["id_high", "id_medium", "id_low", "ood_failed", "ood_successful"],
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing result directory and LLaMA-Factory output for this split.",
+    )
     args = parser.parse_args()
 
     config = load_benchmark_config()
     split_config, samples, references = load_sft_split(config, args.split)
     model_path, _, llamafactory_path = verify_checkpoint_and_tools(config)
     register_llamafactory_dataset(config, split_config, llamafactory_path)
-    elapsed = run_sft_inference(config, args.split, split_config, model_path, llamafactory_path, args.force)
+    elapsed = run_sft_inference(
+        config, args.split, split_config, model_path, llamafactory_path, args.force
+    )
     convert_official_predictions(config, args.split)
     run_official_metrics(config, args.split, split_config)
-    predictions, converted = validate_prediction_count(args.split, split_config["samples"], references)
-    save_split_summary(config, args.split, split_config, samples, references, elapsed, predictions, converted)
+    predictions, converted = validate_prediction_count(
+        args.split, split_config["samples"], references
+    )
+    save_split_summary(
+        config,
+        args.split,
+        split_config,
+        samples,
+        references,
+        elapsed,
+        predictions,
+        converted,
+    )
     print(f"{args.split}: complete")
 
 
