@@ -32,7 +32,14 @@ echo "Resolved config: $config_path" | tee "$log_dir/command.txt"
 echo "Output dir: $output_dir" | tee -a "$log_dir/command.txt"
 cd "$llamafactory_dir"
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
-cmd=(python3 src/train.py "$config_path" do_train=true model_name_or_path="$base_model" output_dir="$output_dir")
+nproc_per_node="${NPROC_PER_NODE:-1}"
+master_port="${MASTER_PORT:-29531}"
+if [[ "${FORCE_TORCHRUN:-0}" == "1" || "$nproc_per_node" != "1" ]]; then
+  cmd=(torchrun --nnodes "${NNODES:-1}" --nproc_per_node "$nproc_per_node" --master_port "$master_port" src/train.py "$config_path" do_train=true model_name_or_path="$base_model" output_dir="$output_dir")
+else
+  cmd=(python3 src/train.py "$config_path" do_train=true model_name_or_path="$base_model" output_dir="$output_dir")
+fi
 printf '%q ' "${cmd[@]}" | tee -a "$log_dir/command.txt"; echo | tee -a "$log_dir/command.txt"
 "${cmd[@]}" 2>&1 | tee "$log_dir/train.log"
 cp -f "$output_dir/trainer_state.json" "$log_dir/trainer_state.json" 2>/dev/null || true
+find "$output_dir" -name trainer_state.json -print -quit | xargs -r -I{} cp -f {} "$log_dir/trainer_state.json"
