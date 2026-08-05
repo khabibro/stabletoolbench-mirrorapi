@@ -11,6 +11,7 @@ done
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 [[ -f "$repo_root/$config" || -f "$config" ]] || { echo "Missing config: $config" >&2; exit 1; }
 config_path="$config"; [[ -f "$config_path" ]] || config_path="$repo_root/$config"
+config_path="$(readlink -f "$config_path")"
 llamafactory_dir="${LLAMAFACTORY_DIR:-$repo_root/LLaMA-Factory}"
 base_model="${MIRRORAPI_BASE_MODEL:-/home/khabibillo/models/Qwen2.5-7B-Instruct}"
 output_root="${MIRRORAPI_OUTPUT_ROOT:-/home/khabibillo/checkpoints}"
@@ -31,7 +32,7 @@ echo "Resolved config: $config_path" | tee "$log_dir/command.txt"
 echo "Output dir: $output_dir" | tee -a "$log_dir/command.txt"
 cd "$llamafactory_dir"
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
-cmd=(python3 src/train.py --do_train --config_path "$config_path" --model_name_or_path "$base_model" --output_dir "$output_dir")
+cmd=(python3 src/train.py "$config_path" do_train=true model_name_or_path="$base_model" output_dir="$output_dir")
 printf '%q ' "${cmd[@]}" | tee -a "$log_dir/command.txt"; echo | tee -a "$log_dir/command.txt"
 "${cmd[@]}" 2>&1 | tee "$log_dir/train.log"
 cp -f "$output_dir/trainer_state.json" "$log_dir/trainer_state.json" 2>/dev/null || true
