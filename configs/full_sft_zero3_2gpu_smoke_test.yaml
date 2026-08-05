@@ -1,0 +1,57 @@
+### model
+model_name_or_path: ${MIRRORAPI_BASE_MODEL:-/home/khabibillo/models/Qwen2.5-7B-Instruct}
+trust_remote_code: false
+flash_attn: auto
+
+### method
+# Tiny full-parameter SFT diagnostic using DeepSpeed ZeRO-3.
+# This is NOT the full MirrorAPI training run and is NOT paper-comparable.
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: ../configs/deepspeed_zero3.json
+
+### dataset
+# Smoke-test split only. Do not replace with full data in this config.
+dataset: mirrorapi_sft_debug
+template: qwen
+cutoff_len: 2560
+max_samples: 32
+overwrite_cache: true
+preprocessing_num_workers: 4
+dataloader_num_workers: 1
+
+### output
+output_dir: ${MIRRORAPI_OUTPUT_DIR:-/home/khabibillo/checkpoints/mirrorapi-full-sft-zero3-2gpu-smoke}
+overwrite_output_dir: false
+save_strategy: steps
+save_steps: 1
+save_total_limit: 2
+save_only_model: false
+
+### training
+# Small diagnostic batch. Local ranks 0,1 map to physical GPUs 0,1 through CUDA_VISIBLE_DEVICES=0,1.
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 1
+max_steps: 2
+learning_rate: 2.0e-5
+lr_scheduler_type: cosine
+warmup_steps: 0
+weight_decay: 0.0
+max_grad_norm: 1.0
+bf16: true
+seed: 42
+ddp_timeout: 180000000
+resume_from_checkpoint: null
+
+### evaluation
+do_eval: false
+
+### logging
+logging_steps: 1
+report_to: none
+plot_loss: true
+
+### distributed setup
+# Launch with:
+# CUDA_VISIBLE_DEVICES=0,1 FORCE_TORCHRUN=1 NPROC_PER_NODE=2 bash scripts/run_sft_training.sh --config configs/full_sft_zero3_2gpu_smoke_test.yaml
