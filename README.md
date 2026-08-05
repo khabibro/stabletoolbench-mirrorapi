@@ -222,6 +222,10 @@ This writes raw files under ignored `data/raw/`, creates deterministic debug sub
 
 `joint_sft_cot` is the closest-paper mode. It may use `train_sft.json`, `train_cot.json`, and `train_augment.json` only after the data-mixture audit verifies the official composition. A checkpoint produced from the officially verified SFT+CoT mixture is the closest-paper reproduction. Exact checkpoint parity is not claimed.
 
+## LoRA Diagnostic Smoke Test
+
+`configs/lora_sft_smoke_test.yaml` is a diagnostic-only LoRA run for one GPU. It uses the same Qwen base model, qwen template, tokenizer, and `mirrorapi_sft_debug` data as the full smoke path, but changes `finetuning_type` to `lora` so optimizer updates can complete on one RTX PRO 6000 GPU. This is not part of the paper reproduction and its scores must not be compared to MirrorAPI paper results.
+
 ## Tiny Debug Training
 
 This is real training, not evaluation: it must include `--do_train`, forward pass, loss, gradients, optimizer steps, loss logging, and checkpoint saving. It uses 32 SFT examples and only a few steps.
