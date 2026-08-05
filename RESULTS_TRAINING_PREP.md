@@ -31,7 +31,7 @@ This report tracks the corrected launcher, LoRA diagnostic smoke test, and multi
 
 ## Multi-GPU Full SFT
 - Configuration: `configs/full_sft_zero3.yaml`
-- Method: full-parameter SFT with LLaMA-Factory-supported DeepSpeed ZeRO-3.
+- Method: full-parameter SFT with LLaMA-Factory-supported DeepSpeed ZeRO-3 using `configs/deepspeed_zero3.json`.
 - GPUs: 0,1,3 only; GPU 2 remains excluded.
 - Launch status: NOT LAUNCHED.
 
@@ -43,7 +43,15 @@ This report tracks the corrected launcher, LoRA diagnostic smoke test, and multi
 - ZeRO-3 shards parameters, gradients, and optimizer states across 3 GPUs, so the persistent model/grad/optimizer state is roughly 30-35 GB/GPU before activations and framework overhead.
 - Activations with cutoff 2560 and per-device batch 1 should fit more comfortably than the failed one-GPU full Adam run, but must still be validated with a short ZeRO-3 dry/smoke run before full training.
 
+
+## Configuration Validation
+- Shell syntax validation: PASS for training, joint-training, and evaluation wrappers.
+- JSON validation: PASS for `configs/official_training_settings.json` and `configs/deepspeed_zero3.json`.
+- YAML text validation: PASS for smoke and full-SFT configs.
+- LLaMA-Factory ZeRO-3 parse validation: PASS through DeepSpeed config resolution; direct single-process parse stops with the expected message `Please launch distributed training with llamafactory-cli or torchrun`, which is correct for DeepSpeed distributed training.
+- Full training launch: NOT RUN.
+
 ## Remaining Blockers Before Official Full Training
 - Exact official hyperparameters and data-mixture recipe remain partially unverified.
-- DeepSpeed package was not present in the global Python check; it must be confirmed in the actual training venv before ZeRO-3 launch.
+- DeepSpeed `0.19.3` is installed in the actual training venv; a short distributed ZeRO-3 dry/smoke launch should still be run before expensive full training.
 - The expensive full-SFT run has not been launched.
