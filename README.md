@@ -161,3 +161,114 @@ OOD Successful: completed
 ## Citation
 
 Use the MirrorAPI paper, StableToolBench paper/repository, the `stabletoolbench/MirrorAPI` model card, and the `stabletoolbench/MirrorAPI-Bench` dataset card. Exact sources and revisions are listed in `official_sources.md`.
+
+---
+
+# Part B: Training Reproduction Preparation
+
+This branch adds a separate training pipeline for creating a local MirrorAPI checkpoint from `Qwen/Qwen2.5-7B-Instruct`. The existing released-checkpoint evaluation remains intact: official checkpoint -> LLaMA-Factory `--do_predict` -> MirrorAPI-Bench -> official conversion and BLEU/ROUGE.
+
+The new training scope is: base Qwen2.5-7B-Instruct -> official MirrorAPI training data -> real supervised fine-tuning with `--do_train` -> local checkpoint -> the same official benchmark evaluation -> comparison against base, official checkpoint, and paper scores.
+
+## Official Resources
+
+- Paper: “StableToolBench-MirrorAPI: Modeling Tool Environments as Mirrors of 7,000+ Real-World APIs”, arXiv `2503.20527`, section 2 describes request-response collection, CoT integration, and model training.
+- Code repository: `THUNLP-MT/StableToolBench`.
+- Base model: `Qwen/Qwen2.5-7B-Instruct`, revision `a09a35458c702b33eeacc393d103063234e8bc28`, Apache-2.0.
+- Official checkpoint: `stabletoolbench/MirrorAPI`, revision `f181ec673e2346898a0d6453164604bb8372c4fd`, MIT.
+- Training data: `stabletoolbench/MirrorAPI-Training`, revision `94d2a05cbd7f52621c358e0e843bdfa1fd22f945`, MIT.
+- Benchmark: `stabletoolbench/MirrorAPI-Bench`, revision `adceeb3a567d1f1714fa65c0772ca95a2b0f7cf7`, MIT.
+- Local LLaMA-Factory: `v0.9.3`, commit `ca75f1edf3cb50343ed1c98605141c3e22075b5f`.
+
+## Base Model
+
+Expected local path:
+
+```text
+/home/khabibillo/models/Qwen2.5-7B-Instruct
+```
+
+Do not store model weights in Git. If absent, after checking disk, download with:
+
+```bash
+mkdir -p /home/khabibillo/models
+huggingface-cli download Qwen/Qwen2.5-7B-Instruct \
+  --revision a09a35458c702b33eeacc393d103063234e8bc28 \
+  --local-dir /home/khabibillo/models/Qwen2.5-7B-Instruct
+```
+
+The model is Qwen2ForCausalLM-style `qwen2`, about 7.6B BF16 parameters, split across four safetensors shards, with `tokenizer.json`, `tokenizer_config.json`, `vocab.json`, and `merges.txt`. `trust_remote_code` is not expected for current Transformers.
+
+## Training Data
+
+Use only `stabletoolbench/MirrorAPI-Training` for training. The files are:
+
+- `train_sft.json`: SFT-only baseline data.
+- `train_cot.json`: CoT-mode data; CoT is activated by prepending `[CHAIN_OF_THOUGHT]` to the system prompt.
+- `train_augment.json`: augmentation data listed by the model card, but exact official mixture is not yet fully verified.
+- `train_cache.json`: MirrorAPI-Cache data; excluded from base MirrorAPI reproduction.
+
+Download and audit after disk review:
+
+```bash
+python3 scripts/prepare_training_data.py --download
+```
+
+This writes raw files under ignored `data/raw/`, creates deterministic debug subsets under ignored `data/prepared/`, and idempotently registers LLaMA-Factory datasets.
+
+## Experiment Modes
+
+`sft_only` is the default initial experiment. It trains from `Qwen/Qwen2.5-7B-Instruct` using only `train_sft.json`. A checkpoint produced from only `train_sft.json` is an SFT-only reproduction.
+
+`joint_sft_cot` is the closest-paper mode. It may use `train_sft.json`, `train_cot.json`, and `train_augment.json` only after the data-mixture audit verifies the official composition. A checkpoint produced from the officially verified SFT+CoT mixture is the closest-paper reproduction. Exact checkpoint parity is not claimed.
+
+## Tiny Debug Training
+
+This is real training, not evaluation: it must include `--do_train`, forward pass, loss, gradients, optimizer steps, loss logging, and checkpoint saving. It uses 32 SFT examples and only a few steps.
+
+Do not run even the tiny test until the audit is complete and the command is reviewed:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash scripts/run_sft_training.sh --config configs/sft_smoke_test.yaml
+```
+
+## Full SFT Training
+
+After the tiny test succeeds:
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,3 bash scripts/run_sft_training.sh --config configs/sft_full.yaml
+```
+
+The current full config is a local adaptation because exact official hyperparameters are not public in the audited sources.
+
+## Joint Training
+
+Currently blocked until `docs/training_data_audit.md` marks the joint mixture verified:
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,3 bash scripts/run_joint_training.sh
+```
+
+## Evaluate a Future Checkpoint
+
+All checkpoints must use the same official benchmark path and generation settings:
+
+```bash
+bash scripts/evaluate_checkpoint.sh --checkpoint /home/khabibillo/checkpoints/my-mirrorapi-checkpoint --split id_high
+```
+
+Supported checkpoint aliases are `base` and `official`.
+
+## Validation
+
+```bash
+python -m compileall scripts
+bash -n scripts/run_sft_training.sh
+bash -n scripts/run_joint_training.sh
+bash -n scripts/evaluate_checkpoint.sh
+python3 scripts/prepare_training_data.py --validate-only
+python3 scripts/validate_training_setup.py
+```
+
+A dry run or validation pass is not training success. Full training has not been launched during preparation.

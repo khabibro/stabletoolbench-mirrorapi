@@ -14,3 +14,9 @@ benchmark/runs/
 benchmark/audit/
 stabletoolbench/
 tools/
+.venv-train/
+checkpoints/
+data/raw/
+data/prepared/
+logs/training/
+wandb/

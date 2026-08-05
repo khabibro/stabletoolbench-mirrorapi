@@ -1,0 +1,46 @@
+### model
+model_name_or_path: ${MIRRORAPI_BASE_MODEL:-/home/khabibillo/models/Qwen2.5-7B-Instruct}
+trust_remote_code: false
+flash_attn: auto
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+
+### dataset
+dataset: mirrorapi_sft_debug
+template: qwen
+cutoff_len: 2560
+max_samples: 32
+overwrite_cache: true
+preprocessing_num_workers: 4
+
+### output
+output_dir: ${MIRRORAPI_OUTPUT_DIR:-/home/khabibillo/checkpoints/mirrorapi-sft-smoke}
+overwrite_output_dir: false
+save_steps: 2
+save_total_limit: 1
+
+### training
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 1
+max_steps: 3
+learning_rate: 2.0e-5
+lr_scheduler_type: cosine
+warmup_steps: 0
+weight_decay: 0.0
+max_grad_norm: 1.0
+bf16: true
+seed: 42
+
+### evaluation
+do_eval: false
+
+### logging
+logging_steps: 1
+report_to: none
+plot_loss: true
+
+### distributed setup
+# Local diagnostic only: one available GPU. This is not paper-comparable.

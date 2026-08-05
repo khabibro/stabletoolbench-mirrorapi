@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -39,7 +40,8 @@ def load_sft_split(config: dict, split: str) -> tuple[dict, list, list]:
 
 
 def verify_checkpoint_and_tools(config: dict) -> tuple[Path, Path, Path]:
-    model_path = resolve_path(config, "model_path")
+    model_override = os.environ.get("MIRRORAPI_MODEL_PATH")
+    model_path = Path(model_override) if model_override else resolve_path(config, "model_path")
     dataset_path = resolve_path(config, "dataset_path")
     llamafactory_path = resolve_path(config, "llamafactory_path")
     if not model_path.exists():
